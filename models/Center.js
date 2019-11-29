@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const slugify = require('slugify')
 
 const CenterSchema = new mongoose.Schema({
 	name: {
@@ -75,6 +76,12 @@ const CenterSchema = new mongoose.Schema({
 		type: Date,
 		default: Date.now
 	}
+})
+
+// create Center slug from name
+CenterSchema.pre('save', function(next) {
+	this.slug = slugify(this.name, { lower: true })
+	next()
 })
 
 module.exports = mongoose.model('Center', CenterSchema)
