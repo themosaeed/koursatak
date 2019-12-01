@@ -22,8 +22,8 @@ exports.getCenters = asyncHandler(async (req, res, next) => {
 	//create operators ($gt ..)
 	queryStr = queryStr.replace(/\b(gt|gte|le|lte|in)\b/g, match => `$${match}`)
 
-	//finding resource
-	query = Center.find(JSON.parse(queryStr))
+	//finding resource and populate courses
+	query = Center.find(JSON.parse(queryStr)).populate('courses')
 
 	//select fields
 	if (req.query.select) {
@@ -41,7 +41,7 @@ exports.getCenters = asyncHandler(async (req, res, next) => {
 
 	//pagination
 	const page = parseInt(req.query.page, 10) || 1
-	const limit = parseInt(req.query.limit, 10) || 1
+	const limit = parseInt(req.query.limit, 10) || 20
 	const startIndex = (page - 1) * limit
 	const endIndex = page * limit
 	const total = await Center.countDocuments()
@@ -128,12 +128,14 @@ exports.updateCenter = asyncHandler(async (req, res, next) => {
 // @router DELETE /api/v1/centers/:id
 // @access private
 exports.deleteCenter = asyncHandler(async (req, res, next) => {
-	const center = await Center.findByIdAndDelete(req.params.id)
+	const center = await Center.findById(req.params.id)
 	if (!center) {
 		return res.status(400).json({
 			success: false
 		})
 	}
+
+	center.remove()
 
 	res.status(200).json({
 		success: true,

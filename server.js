@@ -5,6 +5,8 @@ const colors = require('colors')
 const errorHandler = require('./middleware/error')
 const connectDB = require('./config/db')
 
+var cors = require('cors')
+
 //load env vars
 dotenv.config({ path: './config/config.env' })
 
@@ -13,6 +15,8 @@ connectDB()
 
 //Route files
 const centers = require('./routes/centers')
+const courses = require('./routes/courses')
+const admin = require('./routes/adminbro')
 
 const app = express()
 
@@ -23,18 +27,20 @@ app.use(morgan('dev'))
 
 //mount routes
 app.use('/api/v1/centers', centers)
+app.use('/api/v1/courses', courses)
+app.use('/admin', admin)
 
 // error handler middleware
 app.use(errorHandler)
 
-const PORT = process.env.PORT || 6000
+const PORT = process.env.PORT || 5000
+app.use(cors())
 
 const server = app.listen(PORT, () =>
 	console.log(
 		`server is running in ${process.env.NODE_ENV} on port ${PORT}`.yellow.bold
 	)
 )
-
 //handle unhandled primse rejection
 process.on('unhandledRejection', (err, promise) => {
 	console.log(`error ${err.message}`.red)
