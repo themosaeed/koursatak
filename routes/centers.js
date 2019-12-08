@@ -4,8 +4,12 @@ const {
 	getOneCenters,
 	createCenter,
 	updateCenter,
-	deleteCenter
+	deleteCenter,
+	centerPhotoUpload
 } = require('../controllers/centers')
+
+const Center = require('../models/Center')
+const advancedResults = require('../middleware/advancedResults')
 
 //include other resources routers
 const courseRouter = require('./courses')
@@ -15,9 +19,11 @@ const router = express.Router()
 //reroute into other resource routers
 router.use('/:centerId/courses', courseRouter)
 
+router.route('/:id/photo').put(centerPhotoUpload)
+
 router
 	.route('/')
-	.get(getCenters)
+	.get(advancedResults(Center, 'courses'), getCenters)
 	.post(createCenter)
 
 router
